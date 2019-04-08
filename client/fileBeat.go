@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/Shopify/sarama"
 	"github.com/hpcloud/tail"
@@ -14,7 +15,11 @@ var url = flag.String("u", "", "url")
 
 var appname = flag.String("n", "", "appname")
 
-func produceMessage(url string, topicName string, msgChan chan string) {
+var host, _ = os.Hostname()
+
+var hostname = flag.String("m", host, "hostname")
+
+func produceMessage(url string, topicName string, hostname string, msgChan chan string) {
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -30,7 +35,7 @@ func produceMessage(url string, topicName string, msgChan chan string) {
 	msg := &sarama.ProducerMessage{
 		Topic:     topicName,
 		Partition: int32(-1),
-		Key:       sarama.StringEncoder("key"),
+		Key:       sarama.StringEncoder(hostname),
 	}
 
 	for message := range msgChan {
@@ -54,7 +59,7 @@ func main() {
 	} else {
 		defer t.Done()
 		msgChan := make(chan string, 100)
-		go produceMessage(*url, *appname, msgChan)
+		go produceMessage(*url, *appname, *hostname, msgChan)
 		for line := range t.Lines {
 			msgChan <- line.Text
 		}

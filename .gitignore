@@ -17,7 +17,7 @@ lastupdate.tmp
 # From Vue Ignore
 .DS_Store
 node_modules
-/dist
+dist
 
 # local env files
 .env.local
@@ -36,3 +36,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+package-lock.json
+
+fileBeat
