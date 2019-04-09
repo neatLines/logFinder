@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,6 +15,7 @@ import (
 func main() {
 	var TransparentStatic = func(ctx *context.Context) {
 		if strings.Index(ctx.Request.URL.Path, "v1/") >= 0 {
+			fmt.Println(ctx.Request)
 			return
 		}
 		http.ServeFile(ctx.ResponseWriter, ctx.Request, "web-page/dist/"+ctx.Request.URL.Path)

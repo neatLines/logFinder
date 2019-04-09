@@ -27,4 +27,6 @@ func init() {
 		),
 	)
 	beego.AddNamespace(ns)
+	beego.Router("/v1/ws", &controllers.MyWebSocketController{})
+
 }
