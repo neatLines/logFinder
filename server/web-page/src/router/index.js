@@ -31,7 +31,7 @@ export const constantRouterMap = [
     component: Layout,
     name: 'Dashboard',
     children: [{
-      path: 'dashboard',
+      path: 'index',
       component: () => import('@/views/dashboard/index'),
       meta: { title: 'LogFinder', icon: 'tree' }
 
@@ -59,7 +59,7 @@ export const constantRouterMap = [
     component: Layout,
     children: [
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
+        path: 'https://github.com/neatLines/logFinder',
         meta: { title: 'External Link', icon: 'link' }
       }
     ]

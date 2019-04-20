@@ -7,3 +7,11 @@ export function getList(params) {
     params
   })
 }
+
+
+export function getHosts() {
+  return request({
+    url: '/v1/hosts',
+    method: 'get'
+  })
+}

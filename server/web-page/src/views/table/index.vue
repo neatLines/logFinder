@@ -28,17 +28,18 @@
             :value="item.value"
           />
         </el-select>
-        <el-date-picker
-          v-model="form.limitTime"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        ></el-date-picker>
+        <el-date-picker v-model="form.startTime" type="datetime" placeholder="选择开始日期时间"></el-date-picker>
+        <el-date-picker v-model="form.endTime" :disabled="form.needFlush" type="datetime" placeholder="选择截止日期时间"></el-date-picker>
+        <el-switch
+          v-model="form.needFlush"
+          active-text="实时刷新"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+        ></el-switch>
         <el-button type="primary" @click="onSubmit">过滤</el-button>
       </el-form-item>
     </el-form>
-    <el-tabs v-model="activeName" @tab-click="handleClick">
+    <el-tabs>
       <el-table
         v-loading="listLoading"
         :data="list"
@@ -51,7 +52,12 @@
           <template slot-scope="scope">{{ scope.$index }}</template>
         </el-table-column>
         <el-table-column label="message">
-          <template slot-scope="scope">{{ scope.row.message }}</template>
+          <template slot-scope="scope">
+            <el-popover trigger="hover" placement="top">
+              <p>message: {{ scope.row.message }}</p>
+              <div slot="reference" class="name-wrapper">{{ scope.row.message }}</div>
+            </el-popover>
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="created_at" label="time" width="200">
           <template slot-scope="scope">
@@ -65,7 +71,6 @@
 </template>
 
 <script>
-
 export default {
   filters: {
     statusFilter(status) {
@@ -83,60 +88,13 @@ export default {
       listLoading: true,
       form: {
         hostname: null,
-        limitTime: [
-          new Date(new Date().setDate(new Date().getDate() - 1)),
-          new Date()
-        ],
-        filter: ""
+        startTime: null,
+        endTime: null,
+        filter: "",
+        needFlush: false
       },
       appName: [],
-      applications: [
-        {
-          value: [
-            {
-              value: "Beijing",
-              label: "北京"
-            },
-            {
-              value: "Shanghai",
-              label: "上海"
-            },
-            {
-              value: "Nanjing",
-              label: "南京"
-            },
-            {
-              value: "Chengdu",
-              label: "成都"
-            },
-            {
-              value: "Shenzhen",
-              label: "深圳"
-            },
-            {
-              value: "Guangzhou",
-              label: "广州"
-            }
-          ],
-          label: "黄金糕"
-        },
-        {
-          value: [],
-          label: "双皮奶"
-        },
-        {
-          value: [],
-          label: "蚵仔煎"
-        },
-        {
-          value: [],
-          label: "龙须面"
-        },
-        {
-          value: [],
-          label: "北京烤鸭"
-        }
-      ]
+      applications: []
     };
   },
   created() {
@@ -147,15 +105,35 @@ export default {
   },
   methods: {
     onSubmit() {
-      this.axios.get("/v1/hosts").then(response => {
-        console.log(response.data);
-      });
-      console.log(this.form.hostname);
       this.list = [];
       this.websocketsend(JSON.stringify(this.form));
     },
     initWebSocket() {
       //初始化weosocket
+      this.$store
+        .dispatch("GetHosts")
+        .then(response => {
+          console.log("getHosts");
+          console.log(response);
+          for (const key in response) {
+            if (response.hasOwnProperty(key)) {
+              let tmpvalue = [];
+              for (const hostname in response[key]["hostname"]) {
+                if (response[key]["hostname"].hasOwnProperty(hostname)) {
+                  tmpvalue.push({ label: hostname, value: hostname });
+                }
+              }
+              console.log(tmpvalue);
+              this.applications.push({ label: key, value: tmpvalue });
+            }
+          }
+          console.log(this.applications);
+          this.loading = false;
+        })
+        .catch(e => {
+          console.log(e);
+          this.loading = false;
+        });
       this.listLoading = true;
       const wsuri = "ws://localhost:8080/v1/ws";
       // const wsuri = "ws://"+window.location.host+"/v1/ws";

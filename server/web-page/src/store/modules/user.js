@@ -1,4 +1,6 @@
 import { login, logout, getInfo } from '@/api/login'
+import {getHosts} from '@/api/table'
+
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -55,7 +57,16 @@ const user = {
         })
       })
     },
-
+    GetHosts() {
+      return new Promise((resolve, reject) => {
+        getHosts().then(response => {
+          console.log(response)
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
     // 登出
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
