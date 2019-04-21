@@ -2,9 +2,9 @@
   <div class="dashboard-container">
     <div class="dashboard-text">使用指南</div>
     <div class="dashboard-text">1.下载客户端</div>
-    <a href="https://jolyne.club" download="filebeat">下载链接</a>
+    <a href=" wget https://github.com/neatLines/logFinder/raw/master/client/fileBeat" download="filebeat">下载链接</a>
     <p>或者 </p>
-    <code>wget https://jolyne.club/download/filebeat</code>
+    <code>wget wget https://github.com/neatLines/logFinder/raw/master/client/fileBeat</code>
     <div class="dashboard-text">2.在客户端运行</div><code>{{this.name}}</code>
   </div>
 </template>
