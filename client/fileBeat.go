@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 
 	"github.com/Shopify/sarama"
@@ -12,6 +15,10 @@ import (
 var filename = flag.String("f", "", "filename")
 
 var url = flag.String("u", "", "url")
+
+var webPort = flag.String("wp", "", "webport")
+
+var kafkaPort = flag.String("kp", "", "kafkaport")
 
 var appname = flag.String("n", "", "appname")
 
@@ -50,6 +57,29 @@ func produceMessage(url string, topicName string, hostname string, msgChan chan 
 	}
 }
 
+//
+func httpPostJSON(appname string, hostname string, urlbase string) {
+	jsonStr := []byte(`{ "appname": "` + appname + `", "hostname": "` + hostname + `" }`)
+	url := "http://" + urlbase + "/v1/hosts"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		// handle error
+	}
+
+	statuscode := resp.StatusCode
+	hea := resp.Header
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	fmt.Println(statuscode)
+	fmt.Println(hea)
+
+}
+
 func main() {
 	flag.Parse()
 	fmt.Println(fmt.Sprintf("Listening %s, Send to %s, appname: %s", *filename, *url, *appname))
@@ -59,7 +89,8 @@ func main() {
 	} else {
 		defer t.Done()
 		msgChan := make(chan string, 100)
-		go produceMessage(*url, *appname, *hostname, msgChan)
+		go httpPostJSON(*appname, *hostname, *url+":"+*webPort)
+		go produceMessage(*url+":"+*kafkaPort, *appname, *hostname, msgChan)
 		for line := range t.Lines {
 			msgChan <- line.Text
 		}
