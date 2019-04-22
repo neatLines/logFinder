@@ -16,12 +16,12 @@ func init() {
 }
 
 //
-func AddOne(appname string, hostname string) (success bool) {
-	if Hosts[appname] != nil {
-		Hosts[appname].S[hostname] = empty
+func AddOne(host Host) (success bool) {
+	if Hosts[host.Appname] != nil {
+		Hosts[host.Appname].S[host.Hostname] = empty
 	} else {
-		Hosts[appname] = &Set{map[string]Empty{}}
-		Hosts[appname].S[hostname] = empty
+		Hosts[host.Appname] = &Set{map[string]Empty{}}
+		Hosts[host.Appname].S[host.Hostname] = empty
 	}
 	return true
 }

@@ -122,7 +122,6 @@ func (u *UserController) Logout() {
 
 func (u *UserController) Info() {
 	user, err := models.GetUser("user_11111")
-	fmt.Println(user)
 	if err != nil {
 		u.Data["json"] = err.Error()
 	} else {

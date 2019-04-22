@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"encoding/json"
+
 	"github.com/neatLines/logFinder/server/models"
 
 	"github.com/astaxie/beego"
@@ -18,11 +20,11 @@ type HostsController struct {
 // @Failure 403 body is empty
 // @router / [post]
 func (h *HostsController) Post() {
-	// var hs models.hosts
-	// json.Unmarshal(o.Ctx.Input.RequestBody, &ob)
-	// objectid := models.AddOne(ob)
-	// o.Data["json"] = map[string]string{"ObjectId": objectid}
-	// o.ServeJSON()
+	var hs models.Host
+	json.Unmarshal(h.Ctx.Input.RequestBody, &hs)
+	models.AddOne(hs)
+	h.Data["json"] = "register success"
+	h.ServeJSON()
 }
 
 // @Title GetAll
