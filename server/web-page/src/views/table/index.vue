@@ -5,9 +5,9 @@
         <el-input v-model="form.filter" placeholder="过滤规则，like '2019*'，如果有多条规则使用\bb分割"/>
       </el-form-item>
       <el-form-item>
-        <el-select v-model="appName" placeholder="选择应用">
+        <el-select v-model="form.appName" placeholder="选择应用">
           <el-option
-            v-for="item in applications"
+            v-for="item in appName"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -22,14 +22,14 @@
           default-first-option
         >
           <el-option
-            v-for="item in appName"
+            v-for="item in applications[form.appName]"
             :key="item.value"
             :label="item.label"
             :value="item.value"
           />
         </el-select>
-        <el-date-picker v-model="form.startTime" type="datetime" placeholder="选择开始日期时间"></el-date-picker>
-        <el-date-picker v-model="form.endTime" :disabled="form.needFlush" type="datetime" placeholder="选择截止日期时间"></el-date-picker>
+        <el-date-picker v-model="form.startTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择开始日期时间"></el-date-picker>
+        <el-date-picker v-model="form.endTime" :disabled="form.needFlush" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择截止日期时间"></el-date-picker>
         <el-switch
           v-model="form.needFlush"
           active-text="实时刷新"
@@ -91,10 +91,11 @@ export default {
         startTime: null,
         endTime: null,
         filter: "",
-        needFlush: false
+        needFlush: false,
+        appName: null
       },
       appName: [],
-      applications: []
+      applications: {}
     };
   },
   created() {
@@ -113,8 +114,6 @@ export default {
       this.$store
         .dispatch("GetHosts")
         .then(response => {
-          console.log("getHosts");
-          console.log(response);
           for (const key in response) {
             if (response.hasOwnProperty(key)) {
               let tmpvalue = [];
@@ -123,20 +122,18 @@ export default {
                   tmpvalue.push({ label: hostname, value: hostname });
                 }
               }
-              console.log(tmpvalue);
-              this.applications.push({ label: key, value: tmpvalue });
+              this.applications[key]=tmpvalue;
+              this.appName.push({label: key, value: key})
             }
           }
-          console.log(this.applications);
           this.loading = false;
         })
         .catch(e => {
-          console.log(e);
           this.loading = false;
         });
       this.listLoading = true;
-      const wsuri = "ws://localhost:8080/v1/ws";
-      // const wsuri = "ws://"+window.location.host+"/v1/ws";
+      // const wsuri = "ws://localhost:8080/v1/ws";
+      const wsuri = "ws://"+window.location.host+"/v1/ws";
       this.websock = new WebSocket(wsuri);
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onopen = this.websocketonopen;
@@ -153,7 +150,6 @@ export default {
     },
     websocketonmessage(e) {
       //数据接收
-      console.log(JSON.parse(e.data));
       this.list.push(JSON.parse(e.data));
     },
     websocketsend(Data) {

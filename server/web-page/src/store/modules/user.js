@@ -60,7 +60,6 @@ const user = {
     GetHosts() {
       return new Promise((resolve, reject) => {
         getHosts().then(response => {
-          console.log(response)
           resolve(response)
         }).catch(error => {
           reject(error)

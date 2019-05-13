@@ -2,15 +2,26 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/hpcloud/tail"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
 )
+
+type KAFKAMSG struct {
+	Value   string
+	Time    string
+	CPUINFO float64
+	MEMINFO float64
+}
 
 var filename = flag.String("f", "", "filename")
 
@@ -27,6 +38,10 @@ var host, _ = os.Hostname()
 var hostname = flag.String("m", host, "hostname")
 
 func produceMessage(url string, topicName string, hostname string, msgChan chan string) {
+	v, _ := mem.VirtualMemory()
+	cc, _ := cpu.Percent(time.Second, false)
+	t := time.NewTimer(2 * time.Second)
+
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -46,14 +61,22 @@ func produceMessage(url string, topicName string, hostname string, msgChan chan 
 	}
 
 	for message := range msgChan {
-		msg.Value = sarama.ByteEncoder(message)
-		paritition, offset, err := producer.SendMessage(msg)
+		select {
+		case <-t.C:
+			v, _ = mem.VirtualMemory()
+			cc, _ = cpu.Percent(time.Second, false)
+		default:
+			km := KAFKAMSG{message, time.Now().Format("2006-01-02 15:04:05"), cc[0], v.UsedPercent}
+			s, _ := json.Marshal(km)
+			msg.Value = sarama.ByteEncoder(s)
+			paritition, offset, err := producer.SendMessage(msg)
 
-		if err != nil {
-			fmt.Println("Send Message Fail")
+			if err != nil {
+				fmt.Println("Send Message Fail")
+			}
+
+			fmt.Printf("Partion = %d, offset = %d\n", paritition, offset)
 		}
-
-		fmt.Printf("Partion = %d, offset = %d\n", paritition, offset)
 	}
 }
 

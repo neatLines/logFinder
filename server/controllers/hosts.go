@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"io/ioutil"
 
 	"github.com/neatLines/logFinder/server/models"
 
@@ -21,7 +22,8 @@ type HostsController struct {
 // @router / [post]
 func (h *HostsController) Post() {
 	var hs models.Host
-	json.Unmarshal(h.Ctx.Input.RequestBody, &hs)
+	body, _ := ioutil.ReadAll(h.Ctx.Request.Body)
+	json.Unmarshal(body, &hs)
 	models.AddOne(hs)
 	h.Data["json"] = "register success"
 	h.ServeJSON()
