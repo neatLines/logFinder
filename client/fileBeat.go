@@ -40,8 +40,14 @@ var hostname = flag.String("m", host, "hostname")
 func produceMessage(url string, topicName string, hostname string, msgChan chan string) {
 	v, _ := mem.VirtualMemory()
 	cc, _ := cpu.Percent(time.Second, false)
-	t := time.NewTimer(2 * time.Second)
-
+	ticker := time.NewTicker(2 * time.Second)
+	go func() {
+		for {
+			<-ticker.C
+			v, _ = mem.VirtualMemory()
+			cc, _ = cpu.Percent(time.Second, false)
+		}
+	}()
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -61,22 +67,16 @@ func produceMessage(url string, topicName string, hostname string, msgChan chan 
 	}
 
 	for message := range msgChan {
-		select {
-		case <-t.C:
-			v, _ = mem.VirtualMemory()
-			cc, _ = cpu.Percent(time.Second, false)
-		default:
-			km := KAFKAMSG{message, time.Now().Format("2006-01-02 15:04:05"), cc[0], v.UsedPercent}
-			s, _ := json.Marshal(km)
-			msg.Value = sarama.ByteEncoder(s)
-			paritition, offset, err := producer.SendMessage(msg)
+		km := KAFKAMSG{message, time.Now().Format("2006-01-02 15:04:05"), cc[0], v.UsedPercent}
+		s, _ := json.Marshal(km)
+		msg.Value = sarama.ByteEncoder(s)
+		paritition, offset, err := producer.SendMessage(msg)
 
-			if err != nil {
-				fmt.Println("Send Message Fail")
-			}
-
-			fmt.Printf("Partion = %d, offset = %d\n", paritition, offset)
+		if err != nil {
+			fmt.Println("Send Message Fail")
 		}
+
+		fmt.Printf("Partion = %d, offset = %d\n", paritition, offset)
 	}
 }
 

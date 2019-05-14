@@ -46,13 +46,25 @@ export const constantRouterMap = [
         path: 'index',
         name: 'Applications',
         component: () => import('@/views/table/index'),
-        meta: { title: '应用', icon: 'example' }
+        meta: { title: '应用日志', icon: 'example' }
       }
     ]
 
   },
 
+  {
+    path: '/chart',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'chart',
+        component: () => import('@/views/chart/index'),
+        meta: { title: '应用监控', icon: 'example' }
+      }
+    ]
 
+  },
 
   {
     path: 'external-link',

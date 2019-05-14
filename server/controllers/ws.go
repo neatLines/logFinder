@@ -83,7 +83,13 @@ func sendMsg(conn *websocket.Conn, quit chan int, ok chan int, filterModel model
 	}
 	exit := make(chan int, len(partitionList))
 	for partition := range partitionList {
-		pc, err := consumer.ConsumePartition(filterModel.AppName, int32(partition), sarama.OffsetOldest)
+		model := sarama.OffsetOldest
+		if filterModel.IsNewest {
+			model = sarama.OffsetNewest
+			fmt.Println("isNewest")
+		}
+
+		pc, err := consumer.ConsumePartition(filterModel.AppName, int32(partition), model)
 		if err != nil {
 			fmt.Printf("Failed to start consumer for partition %d: %s\n", partition, err)
 			return
@@ -95,12 +101,17 @@ func sendMsg(conn *websocket.Conn, quit chan int, ok chan int, filterModel model
 				case <-exit:
 					return //收到信号就退出线程
 				default:
+					fmt.Println(string(msg.Value))
+					fmt.Println(x)
+					fmt.Println(string(msg.Key))
 					if x[string(msg.Key)] {
+
 						var msgV models.MQ
 						json.Unmarshal(msg.Value, &msgV)
 						withNanos := "2006-01-02 15:04:05"
 						thisTime, _ := time.Parse(withNanos, msgV.Time)
 						if (!endTime.IsZero() && (startTime.After(thisTime) || endTime.Before(thisTime))) || (endTime.IsZero() && startTime.After(thisTime)) {
+							fmt.Println("time error")
 						} else {
 							if filterModel.Filter != "" {
 								match := true
@@ -113,7 +124,8 @@ func sendMsg(conn *websocket.Conn, quit chan int, ok chan int, filterModel model
 									break
 								}
 							}
-							ret := models.Message{Message: msgV.Value, Time: msgV.Time}
+							ret := models.Message{Message: msgV.Value, Time: msgV.Time, CPU: msgV.CPUINFO, Mem: msgV.MEMINFO}
+							fmt.Println(ret)
 							err := conn.WriteJSON(ret)
 							if err != nil {
 								log.Printf("client.WriteJSON error: %v", err)

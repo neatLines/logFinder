@@ -8,4 +8,5 @@ type Filter struct {
 	Filter    string   `json:"filter"`
 	NeedFlush bool     `json:"needFlush"`
 	AppName   string   `json:"appName"`
+	IsNewest  bool     `json:"isNewest"`
 }
