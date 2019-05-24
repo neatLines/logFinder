@@ -7,11 +7,11 @@ var (
 
 func init() {
 	Hosts = make(map[string]*Set)
-	Hosts["hjkhsbnmn123"] = &Set{map[string]Empty{}}
-	Hosts["mjjkxsxsaa23"] = &Set{map[string]Empty{}}
-	Hosts["hjkhsbnmn123"].S["aa"] = empty
-	Hosts["mjjkxsxsaa23"].S["bb"] = empty
-	Hosts["mjjkxsxsaa23"].S["cc"] = empty
+	// Hosts["hjkhsbnmn123"] = &Set{map[string]Empty{}}
+	// Hosts["mjjkxsxsaa23"] = &Set{map[string]Empty{}}
+	// Hosts["hjkhsbnmn123"].S["aa"] = empty
+	// Hosts["mjjkxsxsaa23"].S["bb"] = empty
+	// Hosts["mjjkxsxsaa23"].S["cc"] = empty
 
 }
 

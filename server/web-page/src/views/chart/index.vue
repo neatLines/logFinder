@@ -27,9 +27,21 @@
         <el-button type="primary" @click="onSubmit">选择</el-button>
       </el-form-item>
     </el-form>
-<el-progress type="circle" :percentage=cpuP></el-progress>
-<el-progress type="circle" :percentage=memP color="#8e71c7"></el-progress>
-  
+<el-row :gutter="20">
+  <el-col :span="6"><div class="grid-content bg-purple">
+        <p>cpu占用：</p>
+    <el-progress type="circle" :percentage=cpuP></el-progress>
+    </div></el-col>
+  <el-col :span="6"><div class="grid-content bg-purple">
+        <p>内存占用：</p>
+
+    <el-progress type="circle" :percentage=memP color="#8e71c7"></el-progress>
+
+</div></el-col>
+  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+  <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+</el-row>
+
   </div>
 
 </template>

@@ -37,6 +37,8 @@ var host, _ = os.Hostname()
 
 var hostname = flag.String("m", host, "hostname")
 
+var token = flag.String("t", "", "token")
+
 func produceMessage(url string, topicName string, hostname string, msgChan chan string) {
 	v, _ := mem.VirtualMemory()
 	cc, _ := cpu.Percent(time.Second, false)
